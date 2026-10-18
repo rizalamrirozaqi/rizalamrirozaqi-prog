@@ -464,18 +464,18 @@
               class="absolute left-6 top-6 z-20 flex w-[calc(100%-3rem)] items-start justify-between gap-3"
             >
               <span
-                class="rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 font-mono text-[9px] uppercase tracking-wider text-white/80 backdrop-blur-md transition-colors duration-500 group-hover:border-white/20 group-hover:text-white"
+                class="px-3.5 py-1.5 font-mono text-[9px] uppercase tracking-wider text-white/80 transition-colors duration-500 group-hover:text-white grroup-hover:drop-shadow-[0_0_10px_rgba(255,255,255,1)] will-change-[color,filter]"
               >
                 {project.category}
               </span>
 
-              {#if !hasInteractedWithAudio}
+              <!-- {#if !hasInteractedWithAudio}
                 <span
                   class="rounded-full bg-black/20 px-3 py-1.5 font-mono text-[8px] uppercase tracking-wider text-white/55"
                 >
                   Click for sound
                 </span>
-              {/if}
+              {/if} -->
             </div>
 
             <!-- PROJECT CONTENT -->
