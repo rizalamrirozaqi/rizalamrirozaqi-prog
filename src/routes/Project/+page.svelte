@@ -3,65 +3,102 @@
   import { gsap } from 'gsap';
   import { language } from '$lib/stores/language';
 
-  const projects = [
-  {
-    number: '01',
-    year: '2026',
-    title: 'Music Platform Hook',
-    category: 'Motion Graphics',
-    description: {
-      id: 'Eksperimen motion graphics minimal untuk konsep promosi Spotify, dengan eksplorasi UI, typography, dan transisi.'
-      en: 'A minimal motion graphics experiment for a Spotify promo concept, exploring UI, typography, and transitions.'    },
-    video: '/videos/project-1.webm'
-  },
-
-  {
-    number: '02',
-    year: '2026',
-    title: 'Abstract Movement',
-    category: 'Motion Graphics',
-    description: {
-      id: 'Eksperimen kecil dengan bentuk dan gerakan abstrak. Dibuat untuk mengeksplorasi timing, transisi, dan bagaimana elemen sederhana dapat bekerja sama.',
-      en: 'A small experiment with abstract shapes and movement. Made to explore timing, transitions, and how simple elements can work together.'
+  const rawProjects = [
+    {
+      title: 'Company Profile',
+      category: 'Front-End',
+      type: 'video',
+      media: '/videos/company-profile.webm',
+      gridClass: 'md:col-span-2 md:row-span-1',
+      description: {
+        id: 'Website company profile.',
+        en: 'Company profile website.'
+      }
     },
-    video: '/videos/project-2.webm'
-  },
-
-  {
-    number: '03',
-    year: '2026',
-    title: 'Sample Link Archive Web Ad Concept',
-    category: 'UI Motion',
-    description: {
-      id: 'Eksperimen motion untuk konsep iklan web Link Archive. Dibuat untuk mencoba bagaimana elemen antarmuka dan transisi dapat membuat presentasi sebuah produk terasa lebih hidup.',
-      en: 'A motion experiment for a Link Archive web ad concept. Made to explore how interface elements and transitions can make a product presentation feel more dynamic.'
+    {
+      title: 'Investment Potential',
+      category: 'UI/UX',
+      type: 'video',
+      media: '/videos/invest-potential.webm',
+      gridClass: 'md:col-span-2 md:row-span-1',
+      description: {
+        id: 'Web Potensial Investasi Daerah.',
+        en: 'Regional Investment Potential Website.'
+      }
     },
-    video: '/videos/project-3.webm'
-  },
-
-  {
-    number: '04',
-    year: '2025',
-    title: 'Fallen Leaves Animation',
-    category: '3D Animation',
-    description: {
-      id: 'Project animasi 3D sederhana yang menampilkan dedaunan jatuh di depan gedung Universitas Amikom Yogyakarta. Dibuat sebagai bagian dari mata kuliah animasi 3D sambil mempelajari pembuatan scene dan animasi sederhana.',
-      en: 'A small 3D animation project featuring falling leaves in front of the Universitas Amikom Yogyakarta building. Made as part of a 3D animation course while exploring scene creation and simple animation.'
+    {
+      title: 'Link Archive',
+      category: 'Full-Stack',
+      type: 'video',
+      media: '/videos/ungumark.webm',
+      gridClass: 'md:col-span-2 md:row-span-1',
+      description: {
+        id: 'Eksplorasi identitas visual brand fiksi.',
+        en: 'Visual identity explorations.'
+      }
     },
-    video: '/videos/project-4.webm'
-  },
-
-  {
-    number: '05',
-    year: '2025',
-    title: 'Anime Music Video',
-    category: 'Music Video',
-    description: {
-      id: 'Edit pendek Bocchi the Rock! menggunakan After Effects untuk berlatih berbagai teknik motion design, termasuk masking, lighting, dan integrasi 3D.',
-      en: 'A short Bocchi the Rock! edit made in After Effects to practice various motion design techniques, including masking, lighting, and 3D integration.'
+    {
+      title: 'Unified Beneficiary',
+      category: 'Front-End',
+      type: 'video',
+      media: '/videos/solidaritas.webm',
+      gridClass: 'md:col-span-2 md:row-span-1',
+      description: {
+        id: 'Sistem pendaftaran penerima manfaat terpadu.',
+        en: 'Unified beneficiary registry.'
+      }
     },
-    video: '/videos/project-5.webm'
-  }
+    {
+      title: 'Licensing',
+      category: 'Front-End',
+      type: 'video',
+      media: '/videos/perizinan.webm',
+      gridClass: 'md:col-span-2 md:row-span-1',
+      description: {
+        id: 'Website lisensi.',
+        en: 'Licensing website.'
+      }
+    }
+  ];
+
+  export const projects = rawProjects.map((project, index) => ({
+    number: String(index + 1).padStart(2, '0'),
+    ...project
+  }));
+
+  const processes = [
+    {
+      num: '01',
+      title: 'Discovery',
+      desc: {
+        id: 'Memahami visi, audiens, dan tujuan utama.',
+        en: 'Understanding vision, audience, and core goals.'
+      }
+    },
+    {
+      num: '02',
+      title: 'Design',
+      desc: {
+        id: 'Eksplorasi visual & pembuatan prototipe.',
+        en: 'Visual exploration & prototyping.'
+      }
+    },
+    {
+      num: '03',
+      title: 'Development',
+      desc: {
+        id: 'Menerjemahkan desain menjadi kode.',
+        en: 'Translating design into code.'
+      }
+    },
+    {
+      num: '04',
+      title: 'Delivery',
+      desc: {
+        id: 'Pengujian akhir dan peluncuran produk.',
+        en: 'Final testing and product launch.'
+      }
+    }
   ];
 
   // =====================================================
@@ -69,427 +106,248 @@
   // =====================================================
 
   let activeAudioVideo: HTMLVideoElement | null = null;
-
-  // Menentukan apakah user sudah pernah menyalakan audio
   let hasInteractedWithAudio = false;
 
-  const updateVideoAudio = (
-    container: HTMLDivElement,
-    video: HTMLVideoElement
-  ) => {
+  const updateVideoAudio = (video: HTMLVideoElement) => {
     if (video.muted) {
-      // =================================================
-      // MUTE VIDEO LAIN
-      // =================================================
-
-      if (
-        activeAudioVideo &&
-        activeAudioVideo !== video
-      ) {
+      if (activeAudioVideo && activeAudioVideo !== video) {
         activeAudioVideo.muted = true;
       }
 
-      // =================================================
-      // UNMUTE VIDEO INI
-      // =================================================
-
       video.muted = false;
       activeAudioVideo = video;
-
-      // User sudah tahu cara menyalakan audio
       hasInteractedWithAudio = true;
 
       return;
     }
 
-    // =================================================
-    // MUTE VIDEO INI
-    // =================================================
-
     video.muted = true;
 
-    if (
-      activeAudioVideo === video
-    ) {
+    if (activeAudioVideo === video) {
       activeAudioVideo = null;
     }
   };
 
-  const handleVideoClick = (
-    event: MouseEvent
-  ) => {
-    const container =
-      event.currentTarget as HTMLDivElement;
-
+  const toggleProjectAudio = (container: HTMLElement) => {
     const video =
-      container.querySelector(
-        '.project-video'
-      ) as HTMLVideoElement | null;
+      container.querySelector<HTMLVideoElement>('.project-video');
 
-    if (!video) return;
-
-    updateVideoAudio(
-      container,
-      video
-    );
+    if (video) {
+      updateVideoAudio(video);
+    }
   };
 
   // =====================================================
-  // GSAP
+  // GSAP / RESPONSIVE ANIMATIONS
   // =====================================================
 
-  onMount(async () => {
-    const { ScrollTrigger } = await import(
-      'gsap/ScrollTrigger'
-    );
+  onMount(() => {
+    let disposed = false;
+    let mm: ReturnType<typeof gsap.matchMedia> | undefined;
 
-    gsap.registerPlugin(ScrollTrigger);
+    const initializeAnimations = async () => {
+      const { ScrollTrigger } = await import('gsap/ScrollTrigger');
 
-    const ctx = gsap.context(() => {
-      // =====================================================
-      // INTRO
-      // =====================================================
+      if (disposed) return;
 
-      const introTl = gsap.timeline({
-        defaults: {
-          ease: 'power4.out'
-        }
+      gsap.registerPlugin(ScrollTrigger);
+
+      ScrollTrigger.config({
+        ignoreMobileResize: true
       });
 
-      introTl
-        .fromTo(
-          '.intro-meta',
-          {
-            opacity: 0,
-            y: 20
-          },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.7
-          }
-        )
-        .fromTo(
-          '.intro-title',
-          {
-            yPercent: 110
-          },
-          {
-            yPercent: 0,
-            duration: 1,
-            stagger: 0.08
-          },
-          '-=0.4'
-        )
-        .fromTo(
-          '.intro-copy',
-          {
-            opacity: 0,
-            y: 20
-          },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.7
-          },
-          '-=0.45'
-        );
+      mm = gsap.matchMedia();
 
-      // =====================================================
-      // INTRO PARALLAX
-      // =====================================================
-
-      gsap.to('.intro-word', {
-        xPercent: -8,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: '.intro-section',
-          start: 'top top',
-          end: 'bottom top',
-          scrub: 1
-        }
-      });
-
-      // =====================================================
-      // HORIZONTAL PROJECTS
-      // =====================================================
-
-      const section = document.querySelector(
-        '.projects-section'
-      ) as HTMLElement | null;
-
-      const track = document.querySelector(
-        '.projects-track'
-      ) as HTMLElement | null;
-
-      if (section && track) {
-        const getDistance = () =>
-          Math.max(
-            track.scrollWidth -
-              window.innerWidth,
-            0
-          );
-
-        gsap.to(track, {
-          x: () => -getDistance(),
-          ease: 'none',
-          scrollTrigger: {
-            trigger: section,
-            start: 'top top',
-            end: () => `+=${getDistance()}`,
-            scrub: 1,
-            pin: true,
-            anticipatePin: 1,
-            invalidateOnRefresh: true
-          }
-        });
-      }
-
-      // =====================================================
-      // PROJECT CARD REVEAL
-      // =====================================================
-
-      gsap.utils
-        .toArray<HTMLElement>('.project-card')
-        .forEach((card, index) => {
-          gsap.fromTo(
-            card,
-            {
-              opacity: 0,
-              y: 35
-            },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.75,
-              delay: index * 0.05,
-              ease: 'power3.out',
-              scrollTrigger: {
-                trigger: card,
-                start: 'top 90%',
-                once: true
-              }
-            }
-          );
-        });
-
-      // =====================================================
-      // PROJECT VIDEO SCALE
-      // =====================================================
-
-      gsap.utils
-        .toArray<HTMLElement>('.project-video')
-        .forEach((video) => {
-          gsap.fromTo(
-            video,
-            {
-              scale: 1.05
-            },
-            {
-              scale: 1,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: video,
-                start: 'top bottom',
-                end: 'bottom top',
-                scrub: 1
-              }
-            }
-          );
-        });
-
-      // =====================================================
-      // PROJECT TITLE HOVER
-      // =====================================================
-
-      gsap.utils
-        .toArray<HTMLElement>('.project-card')
-        .forEach((card) => {
-          const title =
-            card.querySelector(
-              '.project-title'
-            ) as HTMLElement | null;
-
-          if (!title) return;
-
-          const enter = () => {
-            gsap.to(title, {
-              x: 8,
-              duration: 0.4,
-              ease: 'power3.out'
-            });
-          };
-
-          const leave = () => {
-            gsap.to(title, {
-              x: 0,
-              duration: 0.45,
-              ease: 'power3.out'
-            });
-          };
-
-          card.addEventListener(
-            'mouseenter',
-            enter
-          );
-
-          card.addEventListener(
-            'mouseleave',
-            leave
-          );
-        });
-
-      // =====================================================
-      // GENERAL REVEAL
-      // =====================================================
-
-      gsap.utils
-        .toArray<HTMLElement>('.reveal')
-        .forEach((element) => {
-          gsap.fromTo(
-            element,
-            {
-              opacity: 0,
-              y: 35
-            },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.8,
-              ease: 'power3.out',
-              scrollTrigger: {
-                trigger: element,
-                start: 'top 86%',
-                once: true
-              }
-            }
-          );
-        });
-
-      // =====================================================
-      // PROCESS WORD
-      // =====================================================
-
-      gsap.to('.process-word', {
-        xPercent: 8,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: '.process-section',
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: 1
-        }
-      });
-
-      // =====================================================
-      // CLOSING WORD
-      // =====================================================
-
-      gsap.to('.closing-word', {
-        xPercent: -8,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: '.closing-section',
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: 1
-        }
-      });
-
-      gsap.fromTo(
-        '.closing-content',
+      mm.add(
         {
-          opacity: 0,
-          y: 35
+          isDesktop: '(min-width: 768px)',
+          isMobile: '(max-width: 767px)'
         },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: '.closing-content',
-            start: 'top 85%',
-            once: true
-          }
+        (context) => {
+          const { isMobile } = context.conditions as {
+            isDesktop: boolean;
+            isMobile: boolean;
+          };
+
+          // PROJECT CARD REVEAL
+
+          gsap.utils
+            .toArray<HTMLElement>('.bento-card')
+            .forEach((card) => {
+              gsap.fromTo(
+                card,
+                {
+                  opacity: 0,
+                  y: isMobile ? 20 : 40
+                },
+                {
+                  opacity: 1,
+                  y: 0,
+                  duration: isMobile ? 0.8 : 1.2,
+                  ease: 'power3.out',
+                  scrollTrigger: {
+                    trigger: card,
+                    start: 'top 85%',
+                    once: true
+                  }
+                }
+              );
+            });
+
+          // PROCESS STEP REVEAL
+
+          gsap.utils
+            .toArray<HTMLElement>('.process-step')
+            .forEach((step, index) => {
+              gsap.fromTo(
+                step,
+                {
+                  opacity: 0,
+                  y: 30
+                },
+                {
+                  opacity: 1,
+                  y: 0,
+                  duration: 0.8,
+                  delay: index * (isMobile ? 0.05 : 0.12),
+                  ease: 'power3.out',
+                  scrollTrigger: {
+                    trigger: step,
+                    start: 'top 85%',
+                    once: true
+                  }
+                }
+              );
+            });
+
+          // VIDEO PLAY / PAUSE BASED ON VIEWPORT
+
+          gsap.utils
+            .toArray<HTMLVideoElement>('.project-video')
+            .forEach((video) => {
+              ScrollTrigger.create({
+                trigger: video,
+                start: 'top 100%',
+                end: 'bottom 0%',
+
+                onEnter: () => {
+                  video.play().catch(() => {});
+                },
+
+                onEnterBack: () => {
+                  video.play().catch(() => {});
+                },
+
+                onLeave: () => {
+                  video.pause();
+                },
+
+                onLeaveBack: () => {
+                  video.pause();
+                }
+              });
+            });
+
+          // INTRO BACKGROUND PARALLAX
+
+          gsap.to('.intro-word', {
+            xPercent: -6,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: '.intro-section',
+              start: 'top top',
+              end: 'bottom top',
+              scrub: 1
+            }
+          });
+
+          // PROCESS BACKGROUND PARALLAX
+
+          gsap.to('.process-word', {
+            xPercent: 6,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: '.process-section',
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 1
+            }
+          });
         }
       );
 
-      // =====================================================
-      // REFRESH
-      // =====================================================
-
-      const refresh = () =>
+      requestAnimationFrame(() => {
         ScrollTrigger.refresh();
+      });
+    };
 
-      window.addEventListener(
-        'load',
-        refresh
+    void initializeAnimations().catch((error: unknown) => {
+      console.error(
+        'Failed to initialize portfolio animations:',
+        error
       );
-
-      setTimeout(refresh, 300);
-      setTimeout(refresh, 800);
     });
 
-    return () => {
-      window.removeEventListener(
-        'load',
-        ScrollTrigger.refresh
-      );
+    // CLEANUP
 
-      ctx.revert();
+    return () => {
+      disposed = true;
+
+      mm?.revert();
+
+      if (activeAudioVideo) {
+        activeAudioVideo.muted = true;
+        activeAudioVideo = null;
+      }
     };
   });
 </script>
 
 <svelte:head>
-  <title>Projects — Rizal Amri Rozaqi</title>
+  <title>Web Developer Portfolio — Rizal Amri Rozaqi</title>
 
   <meta
     name="description"
-    content="Selected motion graphics and visual projects by Rizal Amri Rozaqi."
+    content="Web development portfolio showcasing company profile websites, regional investment potential, link archive, beneficiary registration, and licensing projects."
   />
 </svelte:head>
 
 <main
-  class="overflow-hidden text-[#172238] selection:bg-[#18A9E8] selection:text-[#F0F2F4]"
+  class="overflow-hidden bg-[#EEF0F2] text-[#172238] selection:bg-[#18A9E8] selection:text-[#F0F2F4]"
 >
-
-  <!-- =======================================================
+  <!-- =====================================================
        01 — INTRO
-  ======================================================== -->
+  ====================================================== -->
 
   <section
-    class="intro-section relative flex min-h-[82vh] flex-col justify-end overflow-hidden bg-[#EEF0F2] px-6 pb-16 pt-24 md:px-12 md:pb-20"
+    class="intro-section relative flex min-h-[90vh] flex-col justify-end overflow-hidden px-6 pb-20 pt-32 md:px-12"
   >
     <div
-      class="intro-word pointer-events-none absolute -right-[4vw] top-[22%] select-none font-bebas text-[18vw] leading-none text-[#172238]/[0.025]"
+      class="intro-word pointer-events-none absolute -right-[4vw] top-[20%] select-none font-bebas text-[17vw] leading-none text-[#172238]/[0.03] will-change-transform"
     >
-      MOTION
+      DEVELOPER
     </div>
 
-    <div
-      class="relative z-10 mx-auto w-full max-w-7xl"
-    >
+    <div class="relative z-10 mx-auto w-full max-w-7xl">
       <div
         class="intro-meta font-mono text-[9px] uppercase tracking-[0.16em] text-[#172238]/45"
       >
-        / 01 — Projects
+        / 01 — Web Developer Portfolio
       </div>
 
       <div class="mt-8 overflow-hidden">
         <h1
-          class="intro-title font-bebas text-[14vw] leading-[0.78] tracking-[-0.035em] md:text-[11vw]"
+          class="intro-title font-bebas text-[16vw] leading-[0.78] tracking-[-0.035em] md:text-[12vw] will-change-transform"
         >
-          SELECTED
+          BUILDING
         </h1>
       </div>
 
       <div class="overflow-hidden">
         <h2
-          class="intro-title font-bebas text-[11vw] leading-[0.78] tracking-[-0.03em] text-[#172238]/25 md:text-[8vw]"
+          class="intro-title font-bebas text-[11vw] leading-[0.78] tracking-[-0.03em] text-[#172238]/25 md:text-[8vw] will-change-transform"
         >
-          WORK
+          FOR THE WEB.
         </h2>
       </div>
 
@@ -498,237 +356,168 @@
       >
         {#if $language === 'id'}
           <p
-            class="max-w-md text-base leading-relaxed text-[#172238]/55 md:text-lg"
+            class="max-w-xl text-base leading-relaxed text-[#172238]/55 md:text-lg"
           >
-            Beberapa hal yang pernah saya kerjakan,
-            pelajari, atau saya buat untuk mencoba
-            sesuatu yang baru.
+            Saya tertarik pada pengembangan web, mulai dari
+            membangun antarmuka hingga mengembangkan pengalaman
+            digital yang fungsional dan responsif. Berikut beberapa
+            proyek website dan antarmuka yang pernah saya kerjakan.
           </p>
         {:else}
           <p
-            class="max-w-md text-base leading-relaxed text-[#172238]/55 md:text-lg"
+            class="max-w-xl text-base leading-relaxed text-[#172238]/55 md:text-lg"
           >
-            A few things I've worked on, explored,
-            or made while trying to learn something
-            new.
+            I'm interested in web development, from building
+            interfaces to creating functional and responsive
+            digital experiences. Here are selected website and
+            interface projects I've worked on.
           </p>
         {/if}
 
         <div
-          class="flex items-center gap-3 font-mono text-[8px] uppercase tracking-[0.15em] text-[#172238]/40"
+          class="flex shrink-0 items-center gap-3 font-mono text-[8px] uppercase tracking-[0.15em] text-[#172238]/40"
         >
-          <span
-            class="h-2 w-2 rounded-full bg-[#18A9E8]"
-          ></span>
-
-          Scroll horizontally →
+          <span class="h-2 w-2 rounded-full bg-[#18A9E8]"></span>
+          Scroll to explore →
         </div>
       </div>
     </div>
   </section>
 
-  <!-- =======================================================
-       02 — PROJECTS
-  ======================================================== -->
+  <!-- =====================================================
+       02 — WEB PROJECTS
+  ====================================================== -->
 
   <section
-    class="projects-section relative overflow-hidden bg-[#172238] text-[#EEF0F2]"
+    class="projects-section relative z-20 -mt-10 bg-[#172238] px-6 py-24 shadow-[0_-20px_50px_rgba(0,0,0,0.1)] md:-mt-16 md:px-12 md:py-32"
   >
-    <div
-      class="absolute left-6 top-8 z-20 font-mono text-[8px] uppercase tracking-[0.15em] text-[#EEF0F2]/45 md:left-12"
-    >
-      / 02 — Selected Work
-    </div>
-
-    <div
-      class="projects-track flex min-h-screen w-max items-center gap-12 px-6 py-24 md:gap-16 md:px-12"
-    >
-
-      <!-- INTRO -->
-
-      <div
-        class="w-[70vw] shrink-0 md:w-[30vw]"
-      >
+    <div class="mx-auto max-w-7xl">
+      <div class="mb-16 md:mb-24">
         <div
           class="font-mono text-[8px] uppercase tracking-[0.15em] text-[#18A9E8]"
         >
-          Motion / Visual / Experiments
+          / 02 — Selected Web Projects
         </div>
 
         <h2
-          class="mt-6 max-w-md font-playfair text-5xl leading-[0.92] md:text-6xl"
+          class="mt-6 max-w-2xl font-playfair text-4xl leading-[1.1] text-white/95 md:text-5xl"
         >
-          Things I've made,
-          <span class="text-[#EEF0F2]/25">
-            one experiment at a time.
+          Websites and interfaces
+          <span class="opacity-30">
+            built around real needs.
           </span>
         </h2>
-
-        {#if $language === 'id'}
-          <p
-            class="mt-8 max-w-sm text-sm leading-relaxed text-[#EEF0F2]/40"
-          >
-            Tidak semuanya dibuat untuk alasan yang
-            sama. Sebagian hanya karena penasaran dan
-            ingin mencoba.
-          </p>
-        {:else}
-          <p
-            class="mt-8 max-w-sm text-sm leading-relaxed text-[#EEF0F2]/40"
-          >
-            Not everything was made for the same reason.
-            Some were simply made out of curiosity and
-            a desire to try.
-          </p>
-        {/if}
       </div>
 
-      <!-- PROJECTS -->
+      <!-- BENTO GRID -->
 
-      {#each projects as project}
-        <article
-          class="project-card group flex w-[82vw] shrink-0 flex-col md:w-[44vw]"
-          data-cursor-hover
-        >
-
-          <!-- VIDEO -->
-
-          <div
-            class="group relative aspect-[16/9] w-full cursor-pointer overflow-hidden rounded-lg bg-[#263650]"
-            onclick={handleVideoClick}
-            role="button"
-            tabindex="0"
+      <div
+        class="grid grid-cols-1 gap-2 md:auto-rows-[320px] md:grid-flow-row-dense md:grid-cols-4 md:gap-3"
+      >
+        {#each projects as project}
+          <article
+            class="bento-card group relative flex h-full w-full flex-col justify-end overflow-hidden rounded-[5px] bg-[#131B2C] ring-1 ring-white/5 {project.gridClass} will-change-[transform,opacity]"
+            onclick={(event) => toggleProjectAudio(event.currentTarget)}
             onkeydown={(event) => {
-              if (
-                event.key === 'Enter' ||
-                event.key === ' '
-              ) {
+              if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault();
-
-                handleVideoClick(
-                  event as unknown as MouseEvent
-                );
+                toggleProjectAudio(event.currentTarget);
               }
             }}
-            aria-label={`Play sound for ${project.title}`}
+            role="button"
+            tabindex="0"
+            aria-label={`Toggle sound for ${project.title}`}
           >
-            <span
-              class="absolute left-5 top-5 z-20 font-mono text-[8px] text-[#18A9E8]"
-            >
-              {project.number}
-            </span>
-
-            <video
-              src={project.video}
-              autoplay
-              loop
-              muted
-              playsinline
-              preload="metadata"
-              class="project-video absolute inset-0 h-full w-full object-contain"
-            ></video>
-
-            <!-- HOVER GRADIENT -->
+            <!-- MEDIA LAYER -->
 
             <div
-              class="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-[#101A2D]/60 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+              class="relative z-0 h-auto w-full overflow-hidden bg-[#080D16] md:absolute md:inset-0 md:h-full md:w-full"
+            >
+              {#if project.type === 'video'}
+                <video
+                  src={project.media}
+                  loop
+                  muted
+                  playsinline
+                  preload="metadata"
+                  class="project-video h-auto w-full object-cover opacity-80 transition-transform duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105 will-change-transform md:h-full md:w-full"
+                ></video>
+              {:else}
+                <img
+                  src={project.media}
+                  alt={project.title}
+                  loading="lazy"
+                  class="h-auto w-full object-cover opacity-80 transition-transform duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105 will-change-transform md:h-full md:w-full"
+                />
+              {/if}
+            </div>
+
+            <!-- GRADIENT OVERLAY -->
+
+            <div
+              class="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-[#0A111F] via-[#0A111F]/40 to-transparent opacity-10 transition-opacity duration-700 group-hover:opacity-100 will-change-opacity"
             ></div>
 
-            <!-- HOVER INFO -->
+            <!-- PROJECT TAGS -->
 
             <div
-              class="pointer-events-none absolute bottom-5 left-5 right-5 z-20 flex items-center justify-between opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+              class="absolute left-6 top-6 z-20 flex w-[calc(100%-3rem)] items-start justify-between gap-3"
             >
               <span
-                class="font-mono text-[8px] uppercase tracking-[0.12em] text-white"
+                class="rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 font-mono text-[9px] uppercase tracking-wider text-white/80 backdrop-blur-md transition-colors duration-500 group-hover:border-white/20 group-hover:text-white"
               >
                 {project.category}
               </span>
 
-              <span
-                class="font-mono text-[8px] text-white"
-              >
-                {project.year}
-              </span>
+              {#if !hasInteractedWithAudio}
+                <span
+                  class="rounded-full bg-black/20 px-3 py-1.5 font-mono text-[8px] uppercase tracking-wider text-white/55"
+                >
+                  Click for sound
+                </span>
+              {/if}
             </div>
-          </div>
 
-          <!-- SOUND HINT -->
+            <!-- PROJECT CONTENT -->
 
-          {#if !hasInteractedWithAudio}
-            <div
-              class="mt-3 font-mono text-[8px] uppercase tracking-[0.14em] text-[#EEF0F2]/25"
-            >
-              Click for sound
-            </div>
-          {/if}
+            <div class="relative z-20 mt-auto p-6 md:p-8">
+              <div class="flex items-end justify-between gap-4">
+                <div class="w-full">
+                  <h3
+                    class="font-playfair text-2xl font-medium leading-tight text-white/95 md:text-3xl"
+                  >
+                    {project.title}
+                  </h3>
 
-          <!-- PROJECT INFO -->
+                  <div
+                    class="grid grid-rows-[1fr] transition-[grid-template-rows] duration-[1s] ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[grid-template-rows] md:grid-rows-[0fr] md:group-hover:grid-rows-[1fr]"
+                  >
+                    <div class="overflow-hidden">
+                      <p
+                        class="mt-3 max-w-[95%] translate-y-0 text-sm leading-relaxed text-white/60 opacity-100 transition-all duration-[1s] ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[transform,opacity] md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100"
+                      >
+                        {project.description[$language]}
+                      </p>
+                    </div>
+                  </div>
+                </div>
 
-          <div
-            class:mt-3={hasInteractedWithAudio}
-            class:mt-6={!hasInteractedWithAudio}
-            class="flex min-h-[170px] items-start justify-between gap-6 md:min-h-[185px]"
-          >
-            <div class="max-w-lg">
-
-              <div
-                class="font-mono text-[8px] uppercase tracking-[0.12em] text-[#18A9E8]"
-              >
-                {project.category}
+                <span
+                  class="shrink-0 font-bebas text-4xl leading-none text-white/20 transition-colors duration-700 group-hover:text-[#18A9E8]"
+                >
+                  {project.number}
+                </span>
               </div>
-
-              <h3
-                class="project-title mt-2 max-w-[90%] font-playfair text-3xl leading-[0.95] md:text-5xl"
-              >
-                {project.title}
-              </h3>
-
-              <p
-                class="mt-3 max-w-md text-sm leading-relaxed text-[#EEF0F2]/45"
-              >
-                {project.description[$language]}
-              </p>
-
             </div>
-
-            <span
-              class="hidden font-bebas text-7xl leading-none text-[#EEF0F2]/10 md:block"
-            >
-              {project.number}
-            </span>
-          </div>
-
-        </article>
-      {/each}
-
-      <!-- END -->
-
-      <div
-        class="w-[65vw] shrink-0 md:w-[30vw]"
-      >
-        <div
-          class="font-mono text-[8px] uppercase tracking-[0.15em] text-[#18A9E8]"
-        >
-          End of selection
-        </div>
-
-        <h2
-          class="mt-6 max-w-md font-playfair text-5xl leading-[0.92] md:text-6xl"
-        >
-          More things are
-          <span class="text-[#EEF0F2]/25">
-            on the way.
-          </span>
-        </h2>
+          </article>
+        {/each}
       </div>
-
     </div>
   </section>
 
-  <!-- =======================================================
-       03 — PROCESS
-  ======================================================== -->
+  <!-- =====================================================
+       03 — WEB DEVELOPMENT PROCESS
+  ====================================================== -->
 
   <section
     class="process-section relative overflow-hidden bg-[#AEB7C3] px-6 py-32 md:px-12 md:py-44"
@@ -736,208 +525,65 @@
     <div
       class="process-word pointer-events-none absolute -right-[5vw] top-[36%] select-none font-bebas text-[20vw] leading-none text-[#172238]/[0.045]"
     >
-      PROCESS
+      DEVELOPMENT
     </div>
 
-    <div
-      class="relative z-10 mx-auto max-w-7xl"
-    >
-      <div
-        class="grid gap-16 md:grid-cols-[0.7fr_1.3fr]"
-      >
-
+    <div class="relative z-10 mx-auto max-w-7xl">
+      <div class="grid gap-16 md:grid-cols-[0.7fr_1.3fr]">
         <div class="reveal">
-
           <div
             class="font-mono text-[9px] uppercase tracking-[0.15em] text-[#172238]/45"
           >
-            / 03 — Process
+            / 03 — Web Development Process
           </div>
 
           <h2
             class="mt-6 font-bebas text-[13vw] leading-[0.72] tracking-[-0.03em] md:text-[9vw]"
           >
-            PROCESS
+            HOW I<br />BUILD
           </h2>
 
           {#if $language === 'id'}
             <p
               class="mt-8 max-w-sm text-sm leading-relaxed text-[#172238]/55"
             >
-              Tidak selalu punya proses yang sama.
-              Biasanya saya mulai dari sesuatu yang
-              menarik, lalu mencoba melihat ke mana
-              arahnya.
+              Pendekatan kerja dari memahami kebutuhan hingga menguji
+              hasil akhir. Detail proses dapat menyesuaikan kebutuhan
+              setiap proyek.
             </p>
           {:else}
             <p
               class="mt-8 max-w-sm text-sm leading-relaxed text-[#172238]/55"
             >
-              I don't always follow the same process.
-              Usually, I start with something interesting
-              and see where it leads.
+              A workflow from understanding requirements to reviewing
+              the final result. The details can adapt to each project's
+              needs.
             </p>
           {/if}
-
         </div>
 
-        <div
-          class="grid gap-10 md:grid-cols-3"
-        >
-
-          <div class="reveal">
-
-            <span
-              class="font-mono text-[9px] text-[#172238]/40"
+        <div class="grid gap-8 sm:grid-cols-2">
+          {#each processes as process}
+            <article
+              class="process-step border-t border-[#172238]/25 pt-5"
             >
-              01
-            </span>
+              <span class="font-mono text-[9px] text-[#172238]/40">
+                {process.num}
+              </span>
 
-            <h3
-              class="mt-4 font-playfair text-3xl"
-            >
-              Explore
-            </h3>
+              <h3 class="mt-4 font-playfair text-3xl">
+                {process.title}
+              </h3>
 
-            {#if $language === 'id'}
               <p
-                class="mt-4 text-sm leading-relaxed text-[#172238]/55"
+                class="mt-4 max-w-sm text-sm leading-relaxed text-[#172238]/55"
               >
-                Mencari referensi dan mencoba memahami
-                apa yang sebenarnya ingin dibuat.
+                {process.desc[$language]}
               </p>
-            {:else}
-              <p
-                class="mt-4 text-sm leading-relaxed text-[#172238]/55"
-              >
-                Looking for references and trying to
-                understand what I actually want to make.
-              </p>
-            {/if}
-
-          </div>
-
-          <div class="reveal">
-
-            <span
-              class="font-mono text-[9px] text-[#172238]/40"
-            >
-              02
-            </span>
-
-            <h3
-              class="mt-4 font-playfair text-3xl"
-            >
-              Build
-            </h3>
-
-            {#if $language === 'id'}
-              <p
-                class="mt-4 text-sm leading-relaxed text-[#172238]/55"
-              >
-                Mencoba teknik yang berbeda sampai
-                menemukan pendekatan yang terasa pas.
-              </p>
-            {:else}
-              <p
-                class="mt-4 text-sm leading-relaxed text-[#172238]/55"
-              >
-                Trying different techniques until I
-                find an approach that feels right.
-              </p>
-            {/if}
-
-          </div>
-
-          <div class="reveal">
-
-            <span
-              class="font-mono text-[9px] text-[#172238]/40"
-            >
-              03
-            </span>
-
-            <h3
-              class="mt-4 font-playfair text-3xl"
-            >
-              Learn
-            </h3>
-
-            {#if $language === 'id'}
-              <p
-                class="mt-4 text-sm leading-relaxed text-[#172238]/55"
-              >
-                Melihat kembali hasilnya, menerima
-                masukan, lalu belajar dari kesalahan
-                yang ada.
-              </p>
-            {:else}
-              <p
-                class="mt-4 text-sm leading-relaxed text-[#172238]/55"
-              >
-                Looking back at the result, taking
-                feedback, and learning from what went
-                wrong.
-              </p>
-            {/if}
-
-          </div>
-
+            </article>
+          {/each}
         </div>
       </div>
     </div>
   </section>
-
-  <!-- =======================================================
-       04 — CLOSING PHRASE
-  ======================================================== -->
-
-  <section
-    class="closing-section relative flex min-h-[72vh] items-center overflow-hidden bg-[#EEF0F2] px-6 py-32 md:px-12 md:py-44"
-  >
-    <div
-      class="closing-word pointer-events-none absolute -bottom-8 left-[-4vw] select-none whitespace-nowrap font-bebas text-[20vw] leading-none text-[#172238]/[0.035]"
-    >
-      PASSION
-    </div>
-
-    <div
-      class="closing-content relative z-10 mx-auto w-full max-w-7xl"
-    >
-
-      <div
-        class="font-mono text-[9px] uppercase tracking-[0.15em] text-[#172238]/40"
-      >
-        / 04 — Until next time
-      </div>
-
-      <div class="mt-12">
-
-        <h2
-          class="font-serif text-[8vw] leading-[0.95] tracking-[-0.025em] md:text-[7vw]"
-        >
-          雪の下にも、情熱がある。
-        </h2>
-
-        <p
-          class="mt-8 font-bebas text-2xl tracking-[0.02em] text-[#172238]/70 md:text-4xl"
-        >
-          EVEN BENEATH THE SNOW, PASSION BURNS.
-        </p>
-
-      </div>
-
-      <div
-        class="mt-20 flex items-center gap-3 font-mono text-[8px] uppercase tracking-[0.15em] text-[#172238]/40"
-      >
-        <span
-          class="h-2 w-2 rounded-full bg-[#18A9E8]"
-        ></span>
-
-        More to come
-      </div>
-
-    </div>
-  </section>
-
 </main>

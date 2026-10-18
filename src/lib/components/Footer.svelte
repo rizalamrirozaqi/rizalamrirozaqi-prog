@@ -1,106 +1,159 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { gsap } from 'gsap';
-    import { language } from '$lib/stores/language';
+  import { language } from '$lib/stores/language';
 
   import ParticleMagnet from './ParticleMagnet.svelte';
 
   let footer: HTMLElement | undefined = $state();
   let email: HTMLAnchorElement | undefined = $state();
 
-  onMount(async () => {
+  const socials = [
+    {
+      name: 'Instagram',
+      href: 'https://www.instagram.com/rizalamri.rar/'
+    },
+    {
+      name: 'LinkedIn',
+      href: 'https://www.linkedin.com/in/rizal-amri-rozaqi/'
+    },
+    {
+      name: 'GitHub',
+      href: 'https://github.com/rizalamrirozaqi/'
+    }
+  ];
+
+  onMount(() => {
     if (!footer) return;
 
-    const { ScrollTrigger } = await import('gsap/ScrollTrigger');
-    gsap.registerPlugin(ScrollTrigger);
+    let disposed = false;
+    let ctx: ReturnType<typeof gsap.context> | undefined;
+    let refreshHandler: (() => void) | undefined;
 
-    const ctx = gsap.context(() => {
-      // =====================================================
-      // REVEAL
-      // =====================================================
+    let emailEnterHandler: (() => void) | undefined;
+    let emailLeaveHandler: (() => void) | undefined;
 
-      gsap.fromTo(
-        '.footer-reveal',
-        {
-          opacity: 0,
-          y: 24
-        },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.75,
-          stagger: 0.05,
-          ease: 'power3.out',
+    const refreshTimers: ReturnType<typeof setTimeout>[] = [];
+
+    const initializeAnimations = async () => {
+      const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+
+      if (disposed || !footer) return;
+
+      gsap.registerPlugin(ScrollTrigger);
+
+      ctx = gsap.context(() => {
+        // =====================================================
+        // REVEAL
+        // =====================================================
+
+        gsap.fromTo(
+          '.footer-reveal',
+          {
+            opacity: 0,
+            y: 24
+          },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.75,
+            stagger: 0.05,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: footer,
+              start: 'top 85%',
+              once: true
+            }
+          }
+        );
+
+        gsap.fromTo(
+          '.footer-title-line',
+          {
+            yPercent: 105
+          },
+          {
+            yPercent: 0,
+            duration: 1,
+            stagger: 0.08,
+            ease: 'power4.out',
+            scrollTrigger: {
+              trigger: footer,
+              start: 'top 85%',
+              once: true
+            }
+          }
+        );
+
+        // =====================================================
+        // BACKGROUND WORD
+        // =====================================================
+
+        gsap.to('.footer-bg-word', {
+          xPercent: -7,
+          ease: 'none',
           scrollTrigger: {
             trigger: footer,
-            start: 'top 85%',
-            once: true
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1
           }
-        }
-      );
+        });
 
-      gsap.fromTo(
-        '.footer-title-line',
-        {
-          yPercent: 105
-        },
-        {
-          yPercent: 0,
-          duration: 1,
-          stagger: 0.08,
-          ease: 'power4.out',
+        // =====================================================
+        // TITLE PARALLAX
+        // =====================================================
+
+        gsap.to('.footer-title', {
+          yPercent: -5,
+          ease: 'none',
           scrollTrigger: {
             trigger: footer,
-            start: 'top 85%',
-            once: true
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: 1
           }
+        });
+
+        // =====================================================
+        // EMAIL
+        // =====================================================
+
+        if (email) {
+          gsap.fromTo(
+            email,
+            {
+              opacity: 0,
+              scale: 0.97
+            },
+            {
+              opacity: 1,
+              scale: 1,
+              duration: 0.8,
+              ease: 'power3.out',
+              scrollTrigger: {
+                trigger: email,
+                start: 'top 85%',
+                once: true
+              }
+            }
+          );
         }
-      );
+      }, footer);
 
       // =====================================================
-      // BACKGROUND WORD
-      // =====================================================
-
-      gsap.to('.footer-bg-word', {
-        xPercent: -7,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: footer,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: 1
-        }
-      });
-
-      // =====================================================
-      // TITLE PARALLAX
-      // =====================================================
-
-      gsap.to('.footer-title', {
-        yPercent: -5,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: footer,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: 1
-        }
-      });
-
-      // =====================================================
-      // EMAIL
+      // EMAIL HOVER
       // =====================================================
 
       if (email) {
-        const arrow = email.querySelector(
-          '.email-arrow'
-        ) as HTMLElement | null;
+        const arrow = email.querySelector<HTMLElement>('.email-arrow');
 
-        const enter = () => {
+        emailEnterHandler = () => {
           gsap.to(email, {
             x: 8,
             duration: 0.35,
-            ease: 'power3.out'
+            ease: 'power3.out',
+            overwrite: 'auto'
           });
 
           if (arrow) {
@@ -109,16 +162,18 @@
               y: -5,
               rotation: -8,
               duration: 0.35,
-              ease: 'power3.out'
+              ease: 'power3.out',
+              overwrite: 'auto'
             });
           }
         };
 
-        const leave = () => {
+        emailLeaveHandler = () => {
           gsap.to(email, {
             x: 0,
             duration: 0.4,
-            ease: 'power3.out'
+            ease: 'power3.out',
+            overwrite: 'auto'
           });
 
           if (arrow) {
@@ -127,23 +182,57 @@
               y: 0,
               rotation: 0,
               duration: 0.4,
-              ease: 'power3.out'
+              ease: 'power3.out',
+              overwrite: 'auto'
             });
           }
         };
 
-        email.addEventListener('mouseenter', enter);
-        email.addEventListener('mouseleave', leave);
-
-        return () => {
-          email.removeEventListener('mouseenter', enter);
-          email.removeEventListener('mouseleave', leave);
-        };
+        email.addEventListener('mouseenter', emailEnterHandler);
+        email.addEventListener('mouseleave', emailLeaveHandler);
       }
-    }, footer);
+
+      // =====================================================
+      // REFRESH
+      // =====================================================
+
+      refreshHandler = () => ScrollTrigger.refresh();
+
+      window.addEventListener('load', refreshHandler);
+
+      refreshTimers.push(
+        window.setTimeout(() => ScrollTrigger.refresh(), 300)
+      );
+
+      refreshTimers.push(
+        window.setTimeout(() => ScrollTrigger.refresh(), 800)
+      );
+    };
+
+    void initializeAnimations().catch((error: unknown) => {
+      console.error('Failed to initialize footer animations:', error);
+    });
+
+    // CLEANUP
 
     return () => {
-      ctx.revert();
+      disposed = true;
+
+      if (refreshHandler) {
+        window.removeEventListener('load', refreshHandler);
+      }
+
+      if (email && emailEnterHandler) {
+        email.removeEventListener('mouseenter', emailEnterHandler);
+      }
+
+      if (email && emailLeaveHandler) {
+        email.removeEventListener('mouseleave', emailLeaveHandler);
+      }
+
+      refreshTimers.forEach((timer) => window.clearTimeout(timer));
+
+      ctx?.revert();
     };
   });
 </script>
@@ -171,10 +260,7 @@
 
   <!-- =====================================================
        PARTICLES
-
-       IMPORTANT:
-       hanya area bawah.
-       tidak memberi background.
+       HANYA AREA BAWAH
   ====================================================== -->
 
   <div
@@ -197,19 +283,12 @@
 
   <!-- =====================================================
        CONTENT
-
-       pointer-events-none supaya particle tetap bisa
-       menerima mouse di area kosong.
-
-       Link/button dikembalikan dengan pointer-events-auto.
   ====================================================== -->
 
   <div
     class="pointer-events-none relative z-10 flex min-h-screen flex-col justify-between px-6 py-8 md:px-12 md:py-10"
   >
-    <!-- ===================================================
-         TOP META
-    ==================================================== -->
+    <!-- TOP META -->
 
     <div
       class="footer-reveal flex items-center justify-between font-mono text-[8px] uppercase tracking-[0.16em] text-[#172238]/40"
@@ -217,15 +296,13 @@
       <span>RIZAL AMRI ROZAQI</span>
 
       <span class="hidden md:block">
-        MOTION GRAPHICS / VIDEO EDITING / COMPOSITING / GRAPHIC DESIGN
+        WEB DEVELOPMENT / FRONT-END / UI / DIGITAL EXPERIENCES
       </span>
 
       <span>END</span>
     </div>
 
-    <!-- ===================================================
-         MAIN
-    ==================================================== -->
+    <!-- MAIN -->
 
     <div class="footer-title mx-auto w-full max-w-7xl py-16 md:py-24">
       <div class="overflow-hidden">
@@ -252,13 +329,13 @@
         <div class="footer-reveal max-w-lg">
           <p class="text-base leading-relaxed text-[#172238]/55 md:text-lg">
             {#if $language === 'id'}
-              Kalau ada sesuatu yang ingin dibicarakan,
-              dikerjakan, atau sekadar ingin berbagi ide,
-              boleh menyapa.
+              Punya kesempatan kerja, proyek website, atau ide yang ingin
+              diwujudkan? Saya terbuka untuk berdiskusi, berkolaborasi,
+              dan terus berkembang di bidang web development.
             {:else}
-              If there's something to discuss,
-              work on, or just want to share ideas,
-              feel free to reach out.
+              Have a job opportunity, website project, or idea you'd like
+              to bring to life? I'm open to discussing opportunities,
+              collaborating, and continuing to grow in web development.
             {/if}
           </p>
         </div>
@@ -282,9 +359,7 @@
       </div>
     </div>
 
-    <!-- ===================================================
-         LOWER INFO
-    ==================================================== -->
+    <!-- LOWER INFO -->
 
     <div
       class="footer-reveal grid gap-8 border-t border-[#172238]/15 pt-5 md:grid-cols-3"
@@ -301,35 +376,17 @@
         <div
           class="flex flex-wrap gap-x-6 gap-y-3 font-mono text-[9px] uppercase tracking-[0.1em]"
         >
-          <a
-            href="https://www.instagram.com/"
-            target="_blank"
-            rel="noreferrer"
-            data-cursor-hover
-            class="pointer-events-auto transition-opacity duration-300 hover:opacity-40"
-          >
-            Instagram
-          </a>
-
-          <a
-            href="https://www.linkedin.com/"
-            target="_blank"
-            rel="noreferrer"
-            data-cursor-hover
-            class="pointer-events-auto transition-opacity duration-300 hover:opacity-40"
-          >
-            LinkedIn
-          </a>
-
-          <a
-            href="https://github.com/"
-            target="_blank"
-            rel="noreferrer"
-            data-cursor-hover
-            class="pointer-events-auto transition-opacity duration-300 hover:opacity-40"
-          >
-            GitHub
-          </a>
+          {#each socials as social}
+            <a
+              href={social.href}
+              target="_blank"
+              rel="noreferrer"
+              data-cursor-hover
+              class="pointer-events-auto transition-opacity duration-300 hover:opacity-40"
+            >
+              {social.name}
+            </a>
+          {/each}
         </div>
       </div>
 
@@ -371,9 +428,9 @@
         </div>
       </div>
 
-      <!-- LOCATION -->
+      <!-- AVAILABILITY -->
 
-      <div class="flex flex-col justify-center items-end">
+      <div class="flex flex-col items-end justify-center">
         <div
           class="mb-4 font-mono text-[8px] uppercase tracking-[0.15em] text-[#172238]/35"
         >
@@ -387,16 +444,14 @@
         </p>
 
         <p
-          class="mt-2 font-mono text-[8px] uppercase tracking-[0.1em] text-[#172238]/30"
+          class="mt-2 text-right font-mono text-[8px] uppercase tracking-[0.1em] text-[#172238]/30"
         >
-          Available for selected work
+          Open to Web Developer Opportunities
         </p>
       </div>
     </div>
 
-    <!-- ===================================================
-         COPYRIGHT
-    ==================================================== -->
+    <!-- COPYRIGHT -->
 
     <div
       class="footer-reveal mt-6 flex flex-col justify-between gap-3 border-t border-[#172238]/10 pt-4 font-mono text-[8px] uppercase tracking-[0.12em] text-[#172238]/30 md:flex-row"
