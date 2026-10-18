@@ -535,7 +535,7 @@
         class="hero-visual relative aspect-[16/9] w-full overflow-hidden rounded-md bg-[#172238] shadow-[0_25px_70px_rgba(16,26,45,0.12)] md:w-[42vw]"
       >
         <video
-          src="/videos/company-profile.webm"
+          src="/videos/rizal.webm"
           autoplay
           loop
           muted
@@ -547,8 +547,8 @@
         <div
           class="absolute bottom-0 left-0 right-0 flex justify-between bg-gradient-to-t from-[#101A2D]/70 to-transparent px-4 pb-3 pt-10 font-mono text-[8px] uppercase tracking-[0.15em] text-white/75"
         >
-          <span>Selected Web Projects</span>
-          <span>01 / 05</span>
+          <span>Motion Design</span>
+          <span>#01</span>
         </div>
       </div>
     </div>
