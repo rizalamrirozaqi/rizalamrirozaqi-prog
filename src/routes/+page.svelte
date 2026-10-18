@@ -84,6 +84,7 @@
 
   let shardEls: HTMLDivElement[] = [];
   let hoveredShard: number | null = $state(null);
+  let isMobileHero = $state(true);
 
   let heroRoot: HTMLElement | undefined = $state();
   let marqueeContainer: HTMLDivElement | undefined = $state();
@@ -214,6 +215,16 @@
   onMount(() => {
     let disposed = false;
     let ctx: ReturnType<typeof gsap.context> | undefined;
+    let heroVisualMedia: ReturnType<typeof gsap.matchMedia> | undefined;
+
+    const mobileHeroQuery = window.matchMedia('(max-width: 767px)');
+    isMobileHero = mobileHeroQuery.matches;
+
+    const handleMobileHeroQueryChange = (event: MediaQueryListEvent) => {
+      isMobileHero = event.matches;
+    };
+
+    mobileHeroQuery.addEventListener('change', handleMobileHeroQueryChange);
 
     let refreshHandler: (() => void) | undefined;
     let scrollHandler: (() => void) | undefined;
@@ -292,16 +303,21 @@
           }
         });
 
-        gsap.to('.hero-visual', {
-          yPercent: -10,
-          rotate: -1,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: '.hero',
-            start: 'top top',
-            end: 'bottom top',
-            scrub: 1
-          }
+        // Parallax visual khusus desktop agar video mobile tetap menyatu.
+        heroVisualMedia = gsap.matchMedia();
+
+        heroVisualMedia.add('(min-width: 768px)', () => {
+          gsap.to('.hero-visual', {
+            yPercent: -10,
+            rotate: -1,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: '.hero',
+              start: 'top top',
+              end: 'bottom top',
+              scrub: 1
+            }
+          });
         });
 
         // MARQUEE
@@ -534,6 +550,8 @@
     return () => {
       disposed = true;
 
+      mobileHeroQuery.removeEventListener('change', handleMobileHeroQueryChange);
+
       if (scrollHandler) window.removeEventListener('scroll', scrollHandler);
       if (resizeHandler) window.removeEventListener('resize', resizeHandler);
       if (refreshHandler) window.removeEventListener('load', refreshHandler);
@@ -547,6 +565,7 @@
       }
 
       refreshTimers.forEach((timer) => clearTimeout(timer));
+      heroVisualMedia?.revert();
       ctx?.revert();
     };
   });
@@ -566,8 +585,8 @@
   ====================================================== -->
 
   <section class="hero relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-gray-200 via-gray-300 to-gray-100 md:flex-row">
-    <div class="home-reveal hero-word relative z-30 flex w-full flex-col items-center p-6 text-center md:w-1/2 md:items-start md:pl-12 md:text-left">
-      <p class="hero-line max-w-[15ch] text-3xl uppercase leading-tight text-gray-800 sm:text-4xl md:max-w-none md:text-5xl lg:text-6xl font-bebas">
+    <div class="home-reveal hero-word relative z-30 flex w-full flex-col items-center p-6 pb-0 text-center md:w-3/4 md:items-start md:pb-6 md:pl-12 md:text-left">
+      <p class="hero-line max-w-full text-3xl uppercase leading-tight text-gray-800 sm:text-4xl md:max-w-none md:text-5xl lg:text-6xl font-bebas">
         {#if $language === 'id'}
           Membangun pengalaman digital untuk web.
         {:else}
@@ -584,36 +603,52 @@
       </p>
     </div>
 
-    <!-- VIDEO SHARDS -->
+    <!-- MOBILE: SINGLE FULL-BLEED VIDEO; DESKTOP: INTERACTIVE VIDEO SHARDS -->
 
-    <div class="hero-visual relative mt-8 h-[42svh] min-h-[250px] max-h-[430px] w-full overflow-hidden perspective-[1000px] sm:mt-10 md:mt-0 md:h-screen md:min-h-0 md:max-h-none md:w-1/2"
+    <div
+      class="hero-visual relative mt-40 h-[38svh] min-h-[220px] w-full perspective-[1000px] md:mt-0 md:h-screen md:min-h-0 md:max-h-none md:w-full"
       onmousemove={handleHeroMouseMove}
       role="presentation"
     >
-      {#each shards as path, i}
-        <div
-          onmouseenter={() => handleShardEnter(i)}
-          onmouseleave={() => handleShardLeave(i)}
-          style={`clip-path: ${path}; transform-style: preserve-3d; perspective: 800px;`}
-          class="absolute inset-0"
-          role="presentation"
-        >
-          <div bind:this={shardEls[i]} class="h-full w-full">
-            <video
-              src="/videos/rizal.webm"
-              autoplay
-              loop
-              muted
-              playsinline
-              preload="metadata"
-              class="absolute left-0 top-0 h-full w-full rounded-lg object-cover shadow-xl"
-              style={`clip-path: ${path};`}
-            ></video>
+      {#if isMobileHero}
+        <!-- Mobile: render one uncut video, full-bleed inside the hero container. -->
+        <video
+          src="/videos/rizal.webm"
+          autoplay
+          loop
+          muted
+          playsinline
+          preload="metadata"
+          aria-hidden="true"
+          class="absolute inset-0 h-full w-full object-center scale-200"
+        ></video>
+      {:else}
+        <!-- Desktop: preserve the original interactive shard effect. -->
+        {#each shards as path, i}
+          <div
+            onmouseenter={() => handleShardEnter(i)}
+            onmouseleave={() => handleShardLeave(i)}
+            style={`clip-path: ${path}; transform-style: preserve-3d; perspective: 800px;`}
+            class="absolute inset-0"
+            role="presentation"
+          >
+            <div bind:this={shardEls[i]} class="h-full w-full">
+              <video
+                src="/videos/rizal.webm"
+                autoplay
+                loop
+                muted
+                playsinline
+                preload="metadata"
+                class="absolute left-0 top-0 h-full w-full rounded-lg object-cover shadow-xl"
+                style={`clip-path: ${path};`}
+              ></video>
 
-            <div class="absolute inset-0 rounded-lg bg-gradient-to-br from-white/20 to-transparent opacity-30 mix-blend-overlay"></div>
+              <div class="absolute inset-0 rounded-lg bg-gradient-to-br from-white/20 to-transparent opacity-30 mix-blend-overlay"></div>
+            </div>
           </div>
-        </div>
-      {/each}
+        {/each}
+      {/if}
     </div>
   </section>
 
@@ -738,10 +773,10 @@
       {/each}
     </div>
 
-    <a href="/Project" class="mt-9 inline-flex items-center gap-4 border-b border-white/30 pb-2 font-mono text-[9px] uppercase tracking-[0.14em] transition-colors hover:border-sky-400 hover:text-sky-300">
+    <!-- <a href="/Project" class="mt-9 inline-flex items-center gap-4 border-b border-white/30 pb-2 font-mono text-[9px] uppercase tracking-[0.14em] transition-colors hover:border-sky-400 hover:text-sky-300">
       {#if $language === 'id'}Lihat Semua Proyek{:else}View All Projects{/if}
       <span class="text-sky-400">↗</span>
-    </a>
+    </a> -->
   </section>
 
   <!-- =====================================================
@@ -757,7 +792,7 @@
 
         <h2 class="mt-6 font-playfair text-5xl leading-[0.9] tracking-[-0.02em] md:text-7xl">
           {#if $language === 'id'}
-            Ingin melihat <span class="text-[#172238]/30">proyek web saya?</span>
+            Ingin melihat <span class="text-[#172238]/30">proyek saya?</span>
           {:else}
             Want to see what <span class="text-[#172238]/30">I've been building?</span>
           {/if}
@@ -765,7 +800,13 @@
       </div>
 
       <a href="/Project" data-cursor-hover class="project-cta group inline-flex shrink-0 items-center gap-4 self-start font-mono text-[9px] uppercase tracking-[0.14em] text-[#172238] md:self-end">
-        <span class="border-b border-[#172238]/35 pb-2">View Projects</span>
+        <span class="border-b border-[#172238]/35 pb-2">
+          {#if $language === 'id'}
+            Lihat Proyek
+          {:else}
+            View Projects
+          {/if}
+        </span>
         <span class="cta-arrow text-[#18A9E8]">↗</span>
       </a>
     </div>
