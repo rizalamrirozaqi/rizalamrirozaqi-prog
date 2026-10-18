@@ -606,7 +606,7 @@
     <!-- MOBILE: SINGLE FULL-BLEED VIDEO; DESKTOP: INTERACTIVE VIDEO SHARDS -->
 
     <div
-      class="hero-visual relative mt-40 h-[38svh] min-h-[220px] w-full perspective-[1000px] md:mt-0 md:h-screen md:min-h-0 md:max-h-none md:w-full"
+      class="hero-visual relative mt-40 h-[38svh] min-h-[220px] w-full perspective-[1000px] md:mt-0 md:h-screen md:min-h-0 md:max-h-none"
       onmousemove={handleHeroMouseMove}
       role="presentation"
     >
@@ -620,7 +620,7 @@
           playsinline
           preload="metadata"
           aria-hidden="true"
-          class="absolute inset-0 h-full w-full object-center scale-200"
+          class="absolute inset-0 h-full w-full object-center scale-200 md:scale-100"
         ></video>
       {:else}
         <!-- Desktop: preserve the original interactive shard effect. -->
